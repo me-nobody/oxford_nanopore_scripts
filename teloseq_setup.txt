@@ -1,0 +1,106 @@
+# create a interactive node
+module load slurm-interactive
+fisbatch_screen --nodes=1-1 --time=3:0:0 --mem=36G --ntasks=16
+
+# project_path
+# /rds/projects/b/broderra-mrc-alt-telomere/Anu
+
+## Load required modules ##
+module purge; module load bluebear
+module load bear-apps/2022b
+module load Miniforge3/24.1.2-0
+module load snakemake/7.32.3-foss-2022b
+module load bear-apps/2023a/live
+module load dorado/0.9.0-foss-2023a-CUDA-12.1.1
+
+
+
+## Enable conda/mamba in the current shell ##
+eval "$(${EBROOTMINIFORGE3}/bin/conda shell.bash hook)"
+source "${EBROOTMINIFORGE3}/etc/profile.d/mamba.sh"
+
+CONDA_ENV_PATH="/rds/projects/b/broderra-mrc-alt-telomere/${USER}_conda_env"
+
+## create a new environment for teloseq with python
+mamba create --prefix "${CONDA_ENV_PATH}" --channel conda-forge --channel bioconda --strict-channel-priority \
+--verbose --dry-run --yes --file /rds/projects/b/broderra-mrc-alt-telomere/Anu/scripts/requirements.txt 
+
+## conda environment was created in work environment.
+# /rds/projects/b/broderra-mrc-alt-telomere/dasaz_conda_env
+
+conda activate /rds/projects/b/broderra-mrc-alt-telomere/dasaz_conda_env
+
+
+snakemake --use-conda --configfile config.yml  -pr --cores 8 
+
+
+##  Set a scratch directory for downloaded conda packages ##
+export CONDA_PKGS_DIRS="/scratch/${USER}/conda_pkgs"
+
+
+# step by step install of conda environment
+# first install the bioconda channel
+conda config --add channels bioconda
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+
+# check channels with 
+conda info
+conda config --show channels
+conda config --show default_channels
+
+# cd to project
+
+cd /rds/projects/b/broderra-mrc-alt-telomere/Anu/teloseq
+
+
+
+
+
+# install specific version of numpy
+python3.9 -m pip install numpy==1.21 --ignore-installed
+
+
+# remove conda environment along with installed programs
+mamba remove -p /rds/projects/b/broderra-mrc-alt-telomere/dasaz_conda_env
+
+
+# remove conda environment without name
+
+conda env remove -p /path/to/environment
+
+## Define and create your Conda environment ##
+CONDA_ENV_PATH="/rds/projects/b/broderra-mrc-alt-telomere/${USER}_conda_env"
+mamba create --yes --prefix "${CONDA_ENV_PATH}"
+mamba activate "${CONDA_ENV_PATH}"
+
+## Install additional ont-modkit - not listed in the included environment file >.< ##
+# we had to remove this as we are working with R10 chemistry, instead we import the dorado module
+# mamba install --yes -c bioconda ont-modkit 
+
+## Clone the pipeline ##
+git clone https://github.com/Priyesh000/teloseq.git
+cd teloseq/
+
+mamba env update --prefix "${CONDA_ENV_PATH}" --file environment.yml
+
+##  Clone and build NoiseCancellingRepeatFinder (NCRF) ##
+git clone --branch v1.01.00 https://github.com/makovalab-psu/NoiseCancellingRepeatFinder.git
+cd NoiseCancellingRepeatFinder
+## Edit the Makefile and remove `-Werror` from line 11 (see: https://github.com/makovalab-psu/NoiseCancellingRepeatFinder/issues/10) ##
+
+
+##  DONT CLONE NCRF FROM THE BRANCH (STABLE) - JUST CLONE THE LATEST- THAT WILL BYPASS THE INSTALLATION ERROR
+git@github.com:makovalab-psu/NoiseCancellingRepeatFinder.git  
+
+## & now compile ##
+make
+
+## Add the full path to the compiled `ncrf` binary to `config.yml`: ##
+
+##  Build reference files ##
+cd ../teloseq
+python scripts/build_telomere_reference.py -o refgenome/ full
+python scripts/build_telomere_reference.py -p -o refgenome/ hg002_paternal
+
+## etc...

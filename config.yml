@@ -1,0 +1,128 @@
+
+SAVEPATH:     'data/outgoing_test'
+THREADS:      20
+
+FILTER:
+    min_length: 500
+    max_length: 1500000
+    
+NCRF:
+    NCRF:
+        exec_path: '/rds/projects/b/broderra-mrc-alt-telomere/Anu/teloseq/NoiseCancellingRepeatFinder'
+        motif: "telomeric:TTAGGG"      ## motif_name:seq
+        minlength: 50
+        minmratio: 0.85
+        positionalevents: True
+        scoring: 'nanopore'
+        stats: 'events'
+    ncrf_sort:
+        sortby: 'mratio+'
+
+
+CLAIR3:
+  url: 'http://www.bio8.cs.hku.hk/clair3/clair3_models/r941_prom_hac_g360+g422_1235.tar.gz'
+
+
+KMER_COUNTS:
+    SPLIT_BY_ARMS:
+        skip_supplementary: True
+        skip_secondary: True
+        tol: 20_000
+        min_mq: 40
+    TELOMERIC_KMERS:
+        min_k: 4       
+        max_k: 16     
+        threads: 4     ## number threads per job 
+        max_motifs: False  
+        max_p_adjusted: 0.05
+        min_repeats: 2 
+        
+# ALT_VARIANTS:
+#     alt_motifs: 'config/alt_motifs.txt'
+#     NCRF:
+#         motif: "telomeric:TTAGGG"      ## motif_name:seq
+#         minlength: 12
+#         minmratio: 0.99
+#         positionalevents: True
+#         scoring: 'nanopore'
+#         stats: 'events'
+#     ncrf_sort:
+#         sortby: 'mratio+'
+
+MODKIT:
+    path_exec: /mmfs1/uslinuxhome/prughani/git/projects/2020/202009_salk_telomere/git_repo/dist/modkit 
+    cpg: True
+    ignore: "h"  ## Ignore 5hmC
+    combine-strands: True 
+    threads: 10
+
+MINIMAP2:
+    index:
+        I: 8G
+
+    mapping:
+        a: True
+        x: 'map-ont'
+        t: 30
+        N: 2
+        Y: True
+        y: True ##  Write tags to alignment header
+        L: True
+
+
+
+MOSDEPTH:
+    threads:        10
+    no-per-base:    True
+    mapq:           5
+    fast-mode:      True
+
+SAMTOOLS:
+    merge:
+        threads: 20
+# SNIFFLES:
+#     threads: 20
+
+# NANOCALLER:
+#     preset: ont
+#     mode: ont
+#     sequencing: ont
+#     supplementary: False
+#     neighbor_threshold: '0.4,0.6'
+#     threads: 4
+
+
+# FULL_LENGTH:
+#     mapping-qual: 5
+#     telomere_padding: 500
+#     subtelomere-padding: 500
+#     subtelomere-span:
+#         chm13: 1000
+#         chm13Mask: 100
+
+
+
+WHATSHAP:
+    whatshap_tag:
+        ignore-linked-read:     True
+        # sample:                SAMPLE
+        ignore-read-groups:     True
+        linked-read-distance-cutoff: False
+        tag-supplementary: True
+
+
+EXTRACT_READ_IDS:
+    threads: 3
+    keep_unmapped: False 
+    keep_supplementary: False  
+    keep_secondary: False
+    strandedness: 'both'
+    min_length: 2500
+    min_qmap: 0
+
+
+## -- Input files -- ## 
+BASECALLS: 'datasets.csv'
+FILE_LAYOUT: 'config/file_layout.yaml'
+GENOMES: 'config/refgenome.csv'
+ENZYMES: 'config/restriction_enzymes.csv'

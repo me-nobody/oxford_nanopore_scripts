@@ -1,0 +1,109 @@
+# create a interactive node
+module load slurm-interactive
+fisbatch_screen --nodes=1-1 --time=3:0:0 --mem=36G --ntasks=16
+
+# project_path
+# /rds/projects/b/broderra-mrc-alt-telomere/Anu
+
+## Load required modules ##
+module purge; module load bluebear
+module load bear-apps/2022b
+module load Miniforge3/24.1.2-0
+module load snakemake/7.32.3-foss-2022b
+module load bear-apps/2023a/live
+# module load dorado/0.9.0-foss-2023a-CUDA-12.1.1
+
+## Enable conda/mamba in the current shell ##
+eval "$(${EBROOTMINIFORGE3}/bin/conda shell.bash hook)"
+source "${EBROOTMINIFORGE3}/etc/profile.d/mamba.sh"
+
+
+##  Set a scratch directory for downloaded conda packages ##
+export CONDA_PKGS_DIRS="/scratch/${USER}/conda_pkgs"
+
+## create a new environment for teloseq with python
+CONDA_ENV_PATH="/rds/projects/b/broderra-mrc-alt-telomere/${USER}_conda_env"
+
+## the older environment specified in github is not able to handle the R10 chemistry and also had some conflicts with accessing channels in bioconda.
+## this environment is based on Python3.9
+mamba create --prefix "${CONDA_ENV_PATH}" --channel conda-forge --channel bioconda --strict-channel-priority \
+--verbose  --yes --file teloseq_environment.yml
+
+## conda environment was created in work environment.
+# /rds/projects/b/broderra-mrc-alt-telomere/{USER}_conda_env
+
+conda activate /rds/projects/b/broderra-mrc-alt-telomere/{USER}_conda_env
+
+
+# cd to project
+
+cd /rds/projects/b/broderra-mrc-alt-telomere/Anu/teloseq
+
+## Install additional ont-modkit - not listed in the included environment file >.< ##
+mamba install --yes -c bioconda ont-modkit 
+# ont-modkit works with the older R9 chemistry. For the latest R10 chemistry import the Dorado module
+load dorado/0.9.0-foss-2023a-CUDA-12.1.1 
+
+
+## Clone the pipeline ##
+git clone https://github.com/Priyesh000/teloseq.git
+cd teloseq/
+
+
+## Either Process1 or Process2 to install NCRF ##
+
+##  Clone and build NoiseCancellingRepeatFinder (NCRF) ##
+
+## Process 1
+git clone --branch v1.01.00 https://github.com/makovalab-psu/NoiseCancellingRepeatFinder.git
+cd NoiseCancellingRepeatFinder
+## Edit the Makefile and remove `-Werror` from line 11 (see: https://github.com/makovalab-psu/NoiseCancellingRepeatFinder/issues/10) ##
+
+## Process 2
+##  DONT CLONE NCRF FROM THE BRANCH (STABLE) - JUST CLONE THE LATEST- THAT WILL BYPASS THE INSTALLATION ERROR
+git@github.com:makovalab-psu/NoiseCancellingRepeatFinder.git  
+
+## & now compile ##
+make
+
+# NCRF asks for Python=2.17.18 in teloseq/rules/envs which is unavailable in bioconda. change that to Python=2.17.15
+# in the teloseq/rules/envs/ncrf.yml
+
+# update full path to the compiled NCRF and Mod-kit binary to `teloseq/config.yml`: ##
+
+##  Build reference files ##
+cd ../teloseq
+python scripts/build_telomere_reference.py -o refgenome/ full
+python scripts/build_telomere_reference.py -p -o refgenome/ hg002_paternal
+
+# Python3.9 is not compatible with Biopython=1.77 as in the original requirements and hence this environment has Biopython=1.78
+# Due to this a conflict arises in teloseq/scripts/Restriction_digest_reads.py.
+# comment out line 6 from Bio.Alphabet.IUPAC import IUPACAmbiguousDNA to # Bio.Alphabet.IUPAC import IUPACAmbiguousDNA
+# change line 30 from return Seq(seq, IUPACAmbiguousDNA()) to return Seq(seq)
+# follow the updated changes suggested by Biopython1.78
+
+# The script throws an ASSERTIONERROR in the below expression in teloseq/report_template/20221130_telomere_report_template.py.ipynb 
+assert len(bam_df) == length_before
+# it runs if this assertion is commented out
+
+
+## For running the script in interactive mode with basecalled Bam files##
+# create a interactive node
+# NO NEED TO LOAD ANY MODULES
+module load slurm-interactive
+fisbatch_screen --nodes=1-1 --time=3:0:0 --mem=36G --ntasks=16
+
+# Activate your environment
+CONDA_ENV_PATH="/rds/projects/b/broderra-mrc-alt-telomere/${USER}_conda_env"
+mamba activate "${CONDA_ENV_PATH}"
+
+# change directory
+cd /to/teloseq/directory
+
+# Run Snakemake with the number of cores assigned by Slurm
+snakemake --use-conda --configfile config.yml -pr --cores 16  --ri  --detailed-summary --report
+
+
+
+
+

@@ -1,0 +1,10 @@
+JobID           JobName    Planned 
+24187135       drd_algn 1-03:31:25 
+24100756     bonito_ba+   02:45:25 
+24103615     bonito_ba+ 3-22:43:27 
+24099205     bonito_ba+   04:09:59 
+24114744     bonito_bc6   11:13:33 
+24157349     nf_bc_bon+   14:40:43 
+24053186     bonito_ba+   15:46:50 
+24145718     nf_bc_ali+   17:51:00 
+24109363     nf_bc_ali+   20:25:29 

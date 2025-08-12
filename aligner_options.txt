@@ -1,0 +1,20 @@
+Usage: dorado aligner [--help] [--recursive] [--output-dir VAR] [--emit-summary] [--bed-file VAR] [--threads VAR] [--max-reads VAR] [--verbose]... [--mm2-opts VAR] index reads
+
+Alignment using minimap2. The outputs are expected to be equivalent to minimap2.
+The default parameters use the lr:hq preset.
+NOTE: Not all arguments from minimap2 are currently available. Additionally, parameter names are not finalized and may change.
+
+Positional arguments:
+  index             reference in (fastq/fasta/mmi). 
+  reads             An input file or the folder containing input file(s) (any HTS format). [nargs=0..1] [default: ""]
+
+Optional arguments:
+  -h, --help        shows help message and exits 
+  -r, --recursive   If the 'reads' positional argument is a folder any subfolders will also be searched for input files. 
+  -o, --output-dir  If specified output files will be written to the given folder, otherwise output is to stdout. Required if the 'reads' positional argument is a folder. [nargs=0..1] [default: ""]
+  --emit-summary    If specified, a summary file containing the details of the primary alignments for each read will be emitted to the root of the output folder. This option requires that the '--output-dir' option is also set. 
+  --bed-file        Optional bed-file. If specified, overlaps between the alignments and bed-file entries will be counted, and recorded in BAM output using the 'bh' read tag. [nargs=0..1] [default: ""]
+  -t, --threads     number of threads for alignment and BAM writing (0=unlimited). [nargs=0..1] [default: 0]
+  -n, --max-reads   maximum number of reads to process (for debugging, 0=unlimited). [nargs=0..1] [default: 0]
+  -v, --verbose     [may be repeated]
+  --mm2-opts        Optional minimap2 options string. For multiple arguments surround with double quotes. 
