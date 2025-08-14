@@ -23,10 +23,10 @@ echo $(lspci | grep -i nvidia)
 echo $(nvidia-smi -L)
 echo "cuda visible devices $CUDA_VISIBLE_DEVICES"
 echo $PWD
-dir_path="/rds/projects/b/broderra-mrc-alt-telomere/Anu/pilot_data"
-pod5 convert fast5 $dir_path/Nanopore_271123/fast5/*.fast5 \
---output $dir_path/Nanopore_271123/output_pod5s/ \
---one-to-one $dir_path/Nanopore_271123/fast5/
+dir_path="/rds/projects/b/broderra-mrc-alt-telomere/Anu/boemo_lab_data"
+pod5 convert fast5 $dir_path/2018_08_16_CAM_ONT_2085_1cycle_B_ligation/*.fast5 \
+--output $dir_path/cam_ont_output_pod5s/ \
+--one-to-one $dir_path/2018_08_16_CAM_ONT_2085_1cycle_B_ligation/
 
 ############# END #############
 echo "this means  pod5 file format ran"

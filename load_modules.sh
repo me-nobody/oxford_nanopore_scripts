@@ -14,6 +14,15 @@ module load bear-apps/2024a
 module load SAMtools/1.21-GCC-13.3.0
 module load Pysam/0.22.1-GCC-13.3.0
 
+# IGV
+module load bear-apps/2024a
+module load Mesa/24.1.3-GCCcore-13.3.0
+module load IGV/2.19.5-Java-21
+
+
+# Accessing pod5-file-format 0.3.23-foss-2023a
+module load bear-apps/2023a
+module load pod5-file-format/0.3.23-foss-2023a
 
 # subsample a bamfile for development and testing
 module load bear-apps/2022a/live
@@ -64,6 +73,11 @@ awk '{
 # import nextflow module
 module load bear-apps/2022b/live
 module load Nextflow/24.04.2
+
+# loading and running epi2me basecalling and aligning workflow
+nextflow run epi2me-labs/wf-basecalling --help
+
+
 # load DORADO
 module load bear-apps/2023a/live
 module load --ignore_cache dorado/0.9.0-foss-2023a-CUDA-12.1.1

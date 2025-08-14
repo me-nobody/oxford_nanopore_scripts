@@ -13,11 +13,11 @@ logging.basicConfig(
         datefmt="%Y-%m-%d %H:%M",
     )
 
-dir_path = '/rds/projects/b/broderra-mrc-alt-telomere/Anu/pilot_data/Nanopore_271123/output_data'
-bam_file = 'positive_control_T2T_sorted_120625.bam'
-index_file = 'positive_control_T2T_sorted_120625.bam.bai'
+dir_path = '/rds/projects/b/broderra-mrc-alt-telomere/Anu/pilot_data/EBT_U2OS_15112023/output_data'
+bam_file = 'EBT_telomere.bam'
+index_file = 'EBT_telomere.bam.bai'
 
-file_handler = logging.FileHandler("bam_analysis_"+bam_file[:-4]+".log", mode="a", encoding="utf-8")
+file_handler = logging.FileHandler("read_sequence_"+bam_file[:-4]+".log", mode="a", encoding="utf-8")
 logger = logging.getLogger(__name__)
 console_handler = logging.StreamHandler()
 logger.addHandler(console_handler) # report to screen
@@ -29,11 +29,13 @@ if os.path.exists(dir_path): # check if file path is true
 
 samfile = pysam.AlignmentFile(align_file,'rb',index_filename = align_index_file)
 
-with open(dir_path+"seq_file.txt","a") as fh:
+with open(os.path.join(dir_path,"seq_file.txt"),"a") as fh: # create output file path
     for read in samfile:
         name = ">"+read.query_name
+        logger.info(f'name of the read {name}')
         seq = read.get_forward_sequence()
         seq = seq[1:200] # we just need the terminal end sequence
+        logger.info(f'length of read {len(seq)}')
         fh.write(name+'\n')
         fh.write(seq)
         fh.write('\n')
