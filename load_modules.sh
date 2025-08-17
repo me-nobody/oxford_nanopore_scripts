@@ -9,6 +9,11 @@ apptainer pull docker://ontresearch/wf-teloseq
 module load slurm-interactive
 fisbatch_screen --nodes=1-1 --ntasks=16 --time=3:0:0 --mem=36G
 
+# ont-fast5-api
+module purge;module load bluebear
+module load bear-apps/2022a
+module load ont-fast5-api/4.1.1-foss-2022a
+
 #PYSAM
 module load bear-apps/2024a
 module load SAMtools/1.21-GCC-13.3.0
@@ -20,7 +25,7 @@ module load Mesa/24.1.3-GCCcore-13.3.0
 module load IGV/2.19.5-Java-21
 
 
-# Accessing pod5-file-format 0.3.23-foss-2023a
+# Accessing pod5-file-format 0.3.23-foss-2023amosule
 module load bear-apps/2023a
 module load pod5-file-format/0.3.23-foss-2023a
 
