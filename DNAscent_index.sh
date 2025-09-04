@@ -7,7 +7,9 @@ module load slurm-interactive
 fisbatch_screen --nodes=1-1 --time=3:0:0 --mem=36G --ntasks=16
 # run DNAscent index
 
-apptainer run ../../../containers/DNAscent.sif index -f ../output_pod5s --output ebt_index.dnascent
+apptainer run --nv ../../../containers/DNAscent.sif index -f ../output_pod5s --output ebt_index.dnascent
+
+apptainer run --nv ../../../containers/dnascent_3.1.2.sif index -f ../cam_ont_multiread --output cam_ont_index.dnascent
 
    
 

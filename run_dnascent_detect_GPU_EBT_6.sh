@@ -10,7 +10,7 @@
 #SBATCH --time=6:00:00              # time limit for the whole run, in the form of d-hh:mm:ss, also accepts mm, mm:ss, hh:mm:ss, d-hh, d-hh:mm
 #SBATCH --mem-per-gpu=54G           # memory required per node, in the form of [num][M|G|T]
 #SBATCH --nodes=1                   # 2 nodes, with each node having a GPU
-#SBATCH --ntasks-per-gpu=1          # each GPU will handle 1 task. script needs multiparallel
+#SBATCH --ntasks-per-gpu=1         # each GPU will handle 1 task. script needs multiparallel
 #SBATCH --cpus-per-task=18          # BlueBEAR has 4 GPU in GPU node with 72 CPU per GPU
 
 ############# LOADING MODULES (optional) #############

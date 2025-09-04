@@ -32,7 +32,7 @@ apptainer run  $container_path/DNAscent.sif detect \
               -r "$reference_path/T2Tconsortium_v2.0.fasta" \
               -i "$index_path/ebt_index.dnascent" \
               -o "$index_path/ebt_u2os_15112023_CPU.detect" \
-              -t 18 -q 20 -l 1000 --GPU 0
+              -t 18 -q 5 -l 200 --GPU 0
     
 ############# END #################################
 echo "this means  DNAscent ran"

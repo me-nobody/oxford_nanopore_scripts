@@ -5,6 +5,10 @@
 
 # pull the nextflow wf-teloseq workflow from Oxford Nanopore Docker hub
 apptainer pull docker://ontresearch/wf-teloseq
+
+# pull DNAscent container from singularity/apptainer
+apptainer pull --arch amd64 --force --dir /rds/projects/b/broderra-mrc-alt-telomere/Anu/containers library://mboemo/dnascent/dnascent:3.1.2
+
 # create a interactive session
 module load slurm-interactive
 fisbatch_screen --nodes=1-1 --ntasks=16 --time=3:0:0 --mem=36G
@@ -23,12 +27,21 @@ module load Pysam/0.22.1-GCC-13.3.0
 module load bear-apps/2024a
 module load Mesa/24.1.3-GCCcore-13.3.0
 module load IGV/2.19.5-Java-21
+# run GPU on interactive node
 
-
+srun --account=broderra-mrc-alt-telomere --qos=bbgpu  --gres=gpu:1 --mem=200G --pty /bin/bash &
+ 
 # Accessing pod5-file-format 0.3.23-foss-2023amosule
+module load slurm-interactive
+fisbatch_tmux --nodes=1-1 --ntasks=16 --time=3:0:0 --mem=36G
+
 module load bear-apps/2023a
 module load pod5-file-format/0.3.23-foss-2023a
 
+# converting fast5 to pod5
+pod5 convert fast5 ./cam_ont_multiread/*.fast5 -o ./cam_ont_output_pod5s/ --one-to-one ./cam_ont_multiread/
+
+POD5_DEBUG=1 pod5 convert fast5 ./cam_ont_multiread/*.fast5 -o ./cam_ont_pod5s/ --one-to-one ./cam_ont_multiread/ --strict
 # subsample a bamfile for development and testing
 module load bear-apps/2022a/live
 module load SAMtools/0.1.20-GCC-11.3.0
@@ -83,7 +96,9 @@ module load Nextflow/24.04.2
 nextflow run epi2me-labs/wf-basecalling --help
 
 
-# load DORADO
+# load DORADO : DORADO will not run in the interactive mode
+module load slurm-interactive
+fisbatch_tmux --nodes=1-1 --ntasks=16 --time=3:0:0 --mem=36G
 module load bear-apps/2023a/live
 module load --ignore_cache dorado/0.9.0-foss-2023a-CUDA-12.1.1
 # to run nextflow workflow we need a 1) script 2) config file

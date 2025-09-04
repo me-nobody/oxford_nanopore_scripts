@@ -1,6 +1,6 @@
 # create a interactive session
 module load slurm-interactive
-fisbatch_screen --nodes=1-1 --ntasks=16 --time=3:0:0 --mem=36G
+fisbatch_tmux --nodes=1-1 --ntasks=16 --time=3:0:0 --mem=36G
 
 # load ont-fast5-api
 module load bear-apps/2022a
@@ -14,11 +14,14 @@ from ont_fast5_api.fast5_interface import *
 
 fast5_path = "../boemo_lab_data/cam_ont_multiread/batch_421.fast5"
 
-f5_file = get_fast5_file(fast5_path,'r')
-read_ids = f5_file.get_read_ids()   
-reads = f5_file.get_reads()   # this is a generator
+# f5_file = get_fast5_file(fast5_path,'r')
+# read_ids = f5_file.get_read_ids()   
+# reads = f5_file.get_reads()   
 
-with get_fast5_file(fast5_path,'r'):   
+with get_fast5_file(fast5_path,'r'):
+    f5_file = get_fast5_file(fast5_path,'r')
+    read_ids = f5_file.get_read_ids() 
+    reads = f5_file.get_reads()   # this is a generator
     for read in reads:
         context_tags = read.get_context_tags()
         file_name = context_tags.get('user_filename_input','none')

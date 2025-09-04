@@ -9,7 +9,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks=18                # each task is a thread and make changes to script too
 #SBARCH --mem=200G
-#SBATCH --time=6:00:00             # time limit for the whole run, in the form of d-hh:mm:ss, also accepts mm, mm:ss, hh:mm:ss, d-hh, d-hh:mm
+#SBATCH --time=1:00:00             # time limit for the whole run, in the form of d-hh:mm:ss, also accepts mm, mm:ss, hh:mm:ss, d-hh, d-hh:mm
          
         
 
@@ -35,9 +35,12 @@ reference="/rds/projects/b/broderra-mrc-alt-telomere/Anu/reference_genomes/T2Tco
 #     -profile standard
 
 # apptainer updated in the base.config
-
+# dorado algorithm v0.9.5 updated in the base.config
+# script run within wf-basecalling as it has the base.config with apptainer updated
 # quick multi-liner to convert FAST5 to POD5
 
-nextflow run epi2me-labs/wf-basecalling --input "../boemo_lab_data/cam_ont_pod5s/" --dorado_ext 'pod5' \
-    --ref "../reference_genomes/S288C_reference_sequence_R9-1-1_19990210.fsa" --output_fmt 'bam' --basecaller_model_path "../dorado_models/dna_r9.4.1_e8_sup@v3.6/" \
-    --out_dir "./wf-basecalling/data" -profile apptainer --cuda_device 'cuda:0'
+nextflow run epi2me-labs/wf-basecalling --input "../boemo_lab_data/cam_ont_pod5s/" --output_fmt 'bam' \
+    --dorado_ext 'pod5' \
+    --ref "/rds/projects/b/broderra-mrc-alt-telomere/Anu/reference_genomes/T2Tconsortium_v2.0.fasta" \
+    --basecaller_model_path "../dorado_models/dna_r9.4.1_e8_sup@v3.3/" --out_dir "./data" -profile apptainer \
+    -resume --cuda_device 'cuda:0'
